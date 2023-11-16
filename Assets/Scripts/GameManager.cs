@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     private int playerLife = 3;
     [SerializeField] private int timerToGuess = 15;
     private bool isFinished = false;
+    private string hint1;
+    private string hint2;
 
     private void Awake()
     {
@@ -103,10 +105,12 @@ public class GameManager : MonoBehaviour
     }
 
     private void Win() {
-        
+        //FinishPanel(true)
     }
 
     private void Lose() {
-    
+        //FInishPanel(false)
     }
+
+
 }
