@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
                 foreach(char c in Input.inputString) {
                     selectedLetter = char.ToLowerInvariant(c);
                 }
+                GameUI.Instance.UpdateSelectedLetterText(selectedLetter);
             }
         }
     }
@@ -58,27 +59,36 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     private IEnumerator GuessLetter() {
+
         InvokeRepeating("TimerCountdown", 1, 1f);
+
         do {
             yield return new WaitWhile(() => selectedLetter == NULL_CHAR && timerToGuess > 0);
-            
+            //If the letter selected is correct then Win
             if (selectedLetter == letterToGuess)
             {
                 CancelInvoke();
                 isFinished = true;
+                GameUI.Instance.ShowWinPanel();
+                Debug.Log("You won");
             }
             else {
+                //Update Lives left
                 playerLife--;
                 GameUI.Instance.UpdatePlayerLifeText(playerLife);
-                if (playerLife > 0)
+                if (playerLife > 0) //Still has lives then retry
                 {
+                    //Every miss give hint
                     timerToGuess = TIME_TO_GUESS;
                     GameUI.Instance.UpdateTimerText(timerToGuess);
                     selectedLetter = NULL_CHAR;
+                    Debug.Log("Try again");
                 }
-                else {
+                else {//Else Game Over
                     CancelInvoke();
                     isFinished = true;
+                    GameUI.Instance.ShowLosePanel();
+                    Debug.Log("You lost");
                 }
             }
 
@@ -87,7 +97,16 @@ public class GameManager : MonoBehaviour
 
     private void TimerCountdown()
     {
+        //Update timer
         timerToGuess--;
         GameUI.Instance.UpdateTimerText(timerToGuess);
+    }
+
+    private void Win() {
+        
+    }
+
+    private void Lose() {
+    
     }
 }
