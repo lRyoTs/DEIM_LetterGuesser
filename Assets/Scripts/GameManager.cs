@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
     }
 
     private char GetRandomLetter() {
+        int index = Random.Range(0, letters.Length);
         return letters[Random.Range(0,letters.Length)];
     }
 
@@ -112,5 +113,12 @@ public class GameManager : MonoBehaviour
         //FInishPanel(false)
     }
 
-
+    private string GetFirstHint(int index) {
+        string message = "";
+        if (index > (letters.Length / 2)) {
+            message = "Hint: The letter is greater";
+        }
+        return message;
+    }
+    
 }
