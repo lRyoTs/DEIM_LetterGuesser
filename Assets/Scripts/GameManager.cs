@@ -52,10 +52,14 @@ public class GameManager : MonoBehaviour
             if (Input.anyKeyDown && !busyInput) {
                 Debug.Log(Input.inputString);
                 foreach (char c in Input.inputString) {
-                    selectedLetter = char.ToLowerInvariant(c);
+                    //Check if any input is in the alphabet
+                    if (letters.Contains(c)) {
+                        selectedLetter = char.ToLowerInvariant(c);
+                        GameUI.Instance.UpdateSelectedLetterText(selectedLetter);
+                        busyInput = true;
+                    }
                 }
-                GameUI.Instance.UpdateSelectedLetterText(selectedLetter);
-                busyInput = true;
+                
             }
         }
     }
@@ -82,10 +86,7 @@ public class GameManager : MonoBehaviour
             //If the letter selected is correct then Win
             if (selectedLetter == letterToGuess)
             {
-                CancelInvoke();
-                isFinished = true;
-                GameUI.Instance.ShowWinPanel();
-                Debug.Log("You won");
+                Win();
             }
             else {
                 //Update Lives left
@@ -101,10 +102,7 @@ public class GameManager : MonoBehaviour
                     Debug.Log("Try again");
                 }
                 else {//Else Game Over
-                    CancelInvoke();
-                    isFinished = true;
-                    GameUI.Instance.ShowLosePanel();
-                    Debug.Log("You lost");
+                    Lose();
                 }
             }
             busyInput = false;
@@ -120,11 +118,17 @@ public class GameManager : MonoBehaviour
     }
 
     private void Win() {
-        //FinishPanel(true)
+        CancelInvoke();
+        isFinished = true;
+        GameUI.Instance.ShowWinPanel();
+        Debug.Log("You won");
     }
 
     private void Lose() {
-        //FinishPanel(false)
+        CancelInvoke();
+        isFinished = true;
+        GameUI.Instance.ShowLosePanel();
+        Debug.Log("You lost");
     }
 
     private string GetFirstHint(int index) {
