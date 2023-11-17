@@ -1,24 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.Search;
 using UnityEngine;
 
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set;}
+    public static GameManager Instance { get; private set; }
 
     private const string ALPHABET = "abcdefghijklmnopqrstuvwxyz";
     public const char NULL_CHAR = '\0';
     private const int TIME_TO_GUESS = 15;
+    private const int INITIAL_LIVES = 3;
+    private const int NUMBER_OF_HINTS = 2;
 
-    private char [] letters;
+    private char[] letters;
     [SerializeField] private char letterToGuess;
     [SerializeField] private char selectedLetter;
-    private int playerLife = 3;
+    private bool busyInput = false;
+    private int playerLife = INITIAL_LIVES;
     [SerializeField] private int timerToGuess = 15;
     private bool isFinished = false;
-    private string hint1;
-    private string hint2;
+    private string [] hints;
 
     private void Awake()
     {
@@ -30,31 +34,39 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         selectedLetter = NULL_CHAR;
-        playerLife = 3;
+        playerLife = INITIAL_LIVES;
         GameUI.Instance.UpdatePlayerLifeText(playerLife);
         letters = ALPHABET.ToCharArray();
+        hints = new string[NUMBER_OF_HINTS];
         letterToGuess = GetRandomLetter();
         timerToGuess = TIME_TO_GUESS;
         GameUI.Instance.UpdateTimerText(timerToGuess);
         StartCoroutine(GuessLetter());
+        busyInput = false;
     }
 
     // Update is called once per frame
     void Update()
     {
         if (!isFinished) {
-            if (Input.anyKeyDown) {
-                foreach(char c in Input.inputString) {
+            if (Input.anyKeyDown && !busyInput) {
+                Debug.Log(Input.inputString);
+                foreach (char c in Input.inputString) {
                     selectedLetter = char.ToLowerInvariant(c);
                 }
                 GameUI.Instance.UpdateSelectedLetterText(selectedLetter);
+                busyInput = true;
             }
         }
     }
 
     private char GetRandomLetter() {
         int index = Random.Range(0, letters.Length);
-        return letters[Random.Range(0,letters.Length)];
+
+        hints[0] = GetFirstHint(index);
+        hints[1] = GetLastHint(letters[index]);
+
+        return letters[index];
     }
 
     /// <summary>
@@ -82,6 +94,7 @@ public class GameManager : MonoBehaviour
                 if (playerLife > 0) //Still has lives then retry
                 {
                     //Every miss give hint
+                    ShowHint(playerLife%NUMBER_OF_HINTS);
                     timerToGuess = TIME_TO_GUESS;
                     GameUI.Instance.UpdateTimerText(timerToGuess);
                     selectedLetter = NULL_CHAR;
@@ -94,6 +107,7 @@ public class GameManager : MonoBehaviour
                     Debug.Log("You lost");
                 }
             }
+            busyInput = false;
 
         } while (!isFinished);
     }
@@ -110,15 +124,38 @@ public class GameManager : MonoBehaviour
     }
 
     private void Lose() {
-        //FInishPanel(false)
+        //FinishPanel(false)
     }
 
     private string GetFirstHint(int index) {
         string message = "";
-        if (index > (letters.Length / 2)) {
-            message = "Hint: The letter is greater";
+        if (index > (letters.Length / 2))
+        {
+            message = "HINT: The letter is in the SECOND half of the alphabet";
         }
+        else {
+            message = "HINT: The letter is in the FIRST half of the alphabet ";
+        }
+
         return message;
     }
-    
+
+    private string GetLastHint(char letter)
+    {
+
+        char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+        string message = "";
+
+        if (vowels.Contains(letter)) {
+            message = "HINT: The letter is a vowel";
+        } else {
+            message = "HINT: The letter is a consonant";
+        }
+
+        return message;
+    }
+
+    private void ShowHint(int index) {
+        GameUI.Instance.UpdateHintText(hints[index]);
+    }
 }
