@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor.Search;
 using UnityEngine;
 
@@ -9,20 +8,15 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    private const string ALPHABET = "abcdefghijklmnopqrstuvwxyz";
-    public const char NULL_CHAR = '\0';
     private const int TIME_TO_GUESS = 15;
-    private const int INITIAL_LIVES = 3;
     private const int NUMBER_OF_HINTS = 2;
 
-    private char[] letters;
-    [SerializeField] private char letterToGuess;
+    [SerializeField] private Letter letterToGuess;
     [SerializeField] private char selectedLetter;
     private bool busyInput = false;
-    private int playerLife = INITIAL_LIVES;
     [SerializeField] private int timerToGuess = 15;
     private bool isFinished = false;
-    private string [] hints;
+    //private string [] hints;
 
     private void Awake()
     {
@@ -33,12 +27,10 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        selectedLetter = NULL_CHAR;
-        playerLife = INITIAL_LIVES;
-        GameUI.Instance.UpdatePlayerLifeText(playerLife);
-        letters = ALPHABET.ToCharArray();
-        hints = new string[NUMBER_OF_HINTS];
-        letterToGuess = GetRandomLetter();
+        selectedLetter = Letter.NULL_CHAR;
+        Life.InitializedStaticLife();
+        letterToGuess = new Letter();
+
         timerToGuess = TIME_TO_GUESS;
         GameUI.Instance.UpdateTimerText(timerToGuess);
         StartCoroutine(GuessLetter());
@@ -53,7 +45,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log(Input.inputString);
                 foreach (char c in Input.inputString) {
                     //Check if any input is in the alphabet
-                    if (letters.Contains(c)) {
+                    if (Letter.IsInAlphabet(c)) {
                         selectedLetter = char.ToLowerInvariant(c);
                         GameUI.Instance.UpdateSelectedLetterText(selectedLetter);
                         busyInput = true;
@@ -62,15 +54,6 @@ public class GameManager : MonoBehaviour
                 
             }
         }
-    }
-
-    private char GetRandomLetter() {
-        int index = Random.Range(0, letters.Length);
-
-        hints[0] = GetFirstHint(index);
-        hints[1] = GetLastHint(letters[index]);
-
-        return letters[index];
     }
 
     /// <summary>
@@ -82,23 +65,22 @@ public class GameManager : MonoBehaviour
         InvokeRepeating("TimerCountdown", 1, 1f);
 
         do {
-            yield return new WaitWhile(() => selectedLetter == NULL_CHAR && timerToGuess > 0);
+
+            yield return new WaitWhile(() => selectedLetter == Letter.NULL_CHAR && timerToGuess > 0);
             //If the letter selected is correct then Win
-            if (selectedLetter == letterToGuess)
+            if (letterToGuess.IsSameLetter(selectedLetter))
             {
                 Win();
             }
             else {
                 //Update Lives left
-                playerLife--;
-                GameUI.Instance.UpdatePlayerLifeText(playerLife);
-                if (playerLife > 0) //Still has lives then retry
+                Life.ReduceLife();
+                if (Life.IsAlive()) //Still has lives then retry
                 {
                     //Every miss give hint
-                    ShowHint(playerLife%NUMBER_OF_HINTS);
                     timerToGuess = TIME_TO_GUESS;
                     GameUI.Instance.UpdateTimerText(timerToGuess);
-                    selectedLetter = NULL_CHAR;
+                    selectedLetter = Letter.NULL_CHAR;
                     Debug.Log("Try again");
                 }
                 else {//Else Game Over
@@ -131,35 +113,9 @@ public class GameManager : MonoBehaviour
         Debug.Log("You lost");
     }
 
-    private string GetFirstHint(int index) {
-        string message = "";
-        if (index > (letters.Length / 2))
-        {
-            message = "HINT: The letter is in the SECOND half of the alphabet";
-        }
-        else {
-            message = "HINT: The letter is in the FIRST half of the alphabet ";
-        }
-
-        return message;
-    }
-
-    private string GetLastHint(char letter)
-    {
-
-        char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
-        string message = "";
-
-        if (vowels.Contains(letter)) {
-            message = "HINT: The letter is a vowel";
-        } else {
-            message = "HINT: The letter is a consonant";
-        }
-
-        return message;
-    }
-
+    /*
     private void ShowHint(int index) {
         GameUI.Instance.UpdateHintText(hints[index]);
     }
+    */
 }
