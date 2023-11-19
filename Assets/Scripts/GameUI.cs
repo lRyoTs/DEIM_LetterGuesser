@@ -9,8 +9,8 @@ public class GameUI : MonoBehaviour
 {
     public static GameUI Instance { get; private set; }
 
-    public string DEFAULT_MESSAGE = "No hints for the moment";
-    public string INPUT_MESSAGE = "Select letter from KEYBOARD";
+    public const string DEFAULT_MESSAGE = "No hints for the moment";
+    public const string INPUT_MESSAGE = "Select letter from KEYBOARD";
 
     [SerializeField] private GameObject missText;
     [SerializeField] private TextMeshProUGUI selectedLetterText;
