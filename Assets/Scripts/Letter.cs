@@ -11,8 +11,8 @@ public class Letter
     private char letter;
     private string[] hints;
 
-    public Letter() {
-        hints = new string[2];
+    public Letter(int numberOfHints) {
+        hints = new string[numberOfHints];
         letter = GetRandomLetter();
     }
 
@@ -21,10 +21,10 @@ public class Letter
         char[] letters = ALPHABET.ToCharArray();
         int index = Random.Range(0, letters.Length);
 
-        hints[0] = index > letters.Length / 2 ? "HINT: The letter is in the SECOND half of the alphabet" 
+        hints[1] = index > letters.Length / 2 ? "HINT: The letter is in the SECOND half of the alphabet" 
             : "HINT: The letter is in the FIRST half of the alphabet ";
 
-        hints[1] = IsVowel(letters[index]) ? "HINT: The letter is a vowel" : "HINT: The letter is a consonant";
+        hints[0] = IsVowel(letters[index]) ? "HINT: The letter is a vowel" : "HINT: The letter is a consonant";
 
         return letters[index];
     }
@@ -55,5 +55,9 @@ public class Letter
             return true;
         }
         return false;
+    }
+
+    public string GetHint(int index) {
+        return hints[index];
     }
 }

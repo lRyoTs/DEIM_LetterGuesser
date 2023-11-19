@@ -8,14 +8,14 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    private const int TIME_TO_GUESS = 15;
     private const int NUMBER_OF_HINTS = 2;
 
     [SerializeField] private Letter letterToGuess;
     [SerializeField] private char selectedLetter;
     private bool busyInput = false;
-    [SerializeField] private int timerToGuess = 15;
+
     private bool isFinished = false;
+    private int hintsToCall = NUMBER_OF_HINTS;
     //private string [] hints;
 
     private void Awake()
@@ -29,10 +29,10 @@ public class GameManager : MonoBehaviour
     {
         selectedLetter = Letter.NULL_CHAR;
         Life.InitializedStaticLife();
-        letterToGuess = new Letter();
+        hintsToCall = NUMBER_OF_HINTS;
 
-        timerToGuess = TIME_TO_GUESS;
-        GameUI.Instance.UpdateTimerText(timerToGuess);
+        letterToGuess = new Letter(hintsToCall);
+        Timer.ResetTimer();
         StartCoroutine(GuessLetter());
         busyInput = false;
     }
@@ -62,11 +62,11 @@ public class GameManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator GuessLetter() {
 
-        InvokeRepeating("TimerCountdown", 1, 1f);
-
+        StartCoroutine(Timer.StartTimerCountdown());
+        
         do {
 
-            yield return new WaitWhile(() => selectedLetter == Letter.NULL_CHAR && timerToGuess > 0);
+            yield return new WaitWhile(() => selectedLetter == Letter.NULL_CHAR && !Timer.TimeIsOver());
             //If the letter selected is correct then Win
             if (letterToGuess.IsSameLetter(selectedLetter))
             {
@@ -78,8 +78,8 @@ public class GameManager : MonoBehaviour
                 if (Life.IsAlive()) //Still has lives then retry
                 {
                     //Every miss give hint
-                    timerToGuess = TIME_TO_GUESS;
-                    GameUI.Instance.UpdateTimerText(timerToGuess);
+                    ShowHint(--hintsToCall);
+                    Timer.ResetTimer();                    
                     selectedLetter = Letter.NULL_CHAR;
                     Debug.Log("Try again");
                 }
@@ -92,30 +92,21 @@ public class GameManager : MonoBehaviour
         } while (!isFinished);
     }
 
-    private void TimerCountdown()
-    {
-        //Update timer
-        timerToGuess--;
-        GameUI.Instance.UpdateTimerText(timerToGuess);
-    }
-
     private void Win() {
-        CancelInvoke();
+        StopCoroutine(Timer.StartTimerCountdown());
         isFinished = true;
         GameUI.Instance.ShowWinPanel();
         Debug.Log("You won");
     }
 
     private void Lose() {
-        CancelInvoke();
+        StopCoroutine(Timer.StartTimerCountdown());
         isFinished = true;
         GameUI.Instance.ShowLosePanel();
         Debug.Log("You lost");
     }
 
-    /*
     private void ShowHint(int index) {
-        GameUI.Instance.UpdateHintText(hints[index]);
+        GameUI.Instance.UpdateHintText(letterToGuess.GetHint(index));
     }
-    */
 }

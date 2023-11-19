@@ -63,10 +63,11 @@ public class GameUI : MonoBehaviour
     }
 
     private void ShowFinishPanel(bool isWin) {
+
         if (isWin) {
             winPanel.SetActive (true);
         } else { 
-            losePanel.SetActive (false);
+            losePanel.SetActive (true);
         }
     }
 }
