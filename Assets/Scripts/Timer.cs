@@ -9,7 +9,7 @@ public static class Timer
 
     public static void ResetTimer() {
         timer = TIME_TO_GUESS;
-        GameUI.Instance.UpdateTimerText(timer);
+        TimerUI.Instance.UpdateTimerText(timer);
     }
     public static IEnumerator StartTimerCountdown()
     {
@@ -17,7 +17,7 @@ public static class Timer
             yield return new WaitForSeconds(1f);
             //Update timer
             timer--;
-            GameUI.Instance.UpdateTimerText(timer);
+            TimerUI.Instance.UpdateTimerText(timer);
         }
     }
 

@@ -10,13 +10,13 @@ public class GameManager : MonoBehaviour
 
     private const int NUMBER_OF_HINTS = 2;
 
-    [SerializeField] private Letter letterToGuess;
+    private Letter letterToGuess;
     [SerializeField] private char selectedLetter;
+    
     private bool busyInput = false;
 
     private bool isFinished = false;
     private int hintsToCall = NUMBER_OF_HINTS;
-    //private string [] hints;
 
     private void Awake()
     {
@@ -42,7 +42,6 @@ public class GameManager : MonoBehaviour
     {
         if (!isFinished) {
             if (Input.anyKeyDown && !busyInput) {
-                Debug.Log(Input.inputString);
                 foreach (char c in Input.inputString) {
                     //Check if any input is in the alphabet
                     if (Letter.IsInAlphabet(c)) {
@@ -58,6 +57,7 @@ public class GameManager : MonoBehaviour
 
     /// <summary>
     /// Coroutine that wait till there is a selected letter or timer reaches to 0
+    /// add check if the answer is correct
     /// </summary>
     /// <returns></returns>
     private IEnumerator GuessLetter() {
@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
             }
             else {
                 //Update Lives left
+                GameUI.Instance.ShowMissText();
                 Life.ReduceLife();
                 if (Life.IsAlive()) //Still has lives then retry
                 {
@@ -81,7 +82,6 @@ public class GameManager : MonoBehaviour
                     ShowHint(--hintsToCall);
                     Timer.ResetTimer();                    
                     selectedLetter = Letter.NULL_CHAR;
-                    Debug.Log("Try again");
                 }
                 else {//Else Game Over
                     Lose();
@@ -93,17 +93,15 @@ public class GameManager : MonoBehaviour
     }
 
     private void Win() {
-        StopCoroutine(Timer.StartTimerCountdown());
+        StopAllCoroutines();
         isFinished = true;
-        GameUI.Instance.ShowWinPanel();
-        Debug.Log("You won");
+        GameUI.Instance.ShowFinishPanel(true);
     }
 
     private void Lose() {
-        StopCoroutine(Timer.StartTimerCountdown());
+        StopAllCoroutines();
         isFinished = true;
-        GameUI.Instance.ShowLosePanel();
-        Debug.Log("You lost");
+        GameUI.Instance.ShowFinishPanel(false);
     }
 
     private void ShowHint(int index) {

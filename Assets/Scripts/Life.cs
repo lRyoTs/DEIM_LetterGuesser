@@ -11,7 +11,7 @@ public static class Life
     public static void InitializedStaticLife()
     {
         playerLife = INITIAL_LIVES;
-        GameUI.Instance.UpdatePlayerLifeText(playerLife);
+        LifeUI.Instance.UpdatePlayerLifeText(playerLife);
     }
 
     public static int GetPlayerLife() {
@@ -20,7 +20,7 @@ public static class Life
 
     public static void ReduceLife() {
         playerLife--;
-        GameUI.Instance.UpdatePlayerLifeText(playerLife);
+        LifeUI.Instance.UpdatePlayerLifeText(playerLife);
     }
 
     public static bool IsAlive() {
