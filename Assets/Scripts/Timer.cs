@@ -22,7 +22,7 @@ public static class Timer
     }
 
     public static bool TimeIsOver() {
-        if (timer < 0) {
+        if (timer <= 0) {
             return true;
         }
         return false;

@@ -28,7 +28,7 @@ public class GameUI : MonoBehaviour
         }    
         Instance = this;
         HideFinishPanel();
-        HideMissText();
+
         ResetSelectedLetterText();
 
         retryButton.onClick.AddListener(() => { SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); });
@@ -36,6 +36,7 @@ public class GameUI : MonoBehaviour
 
     private void Start()
     {
+        HideMissText();
         UpdateHintText(DEFAULT_MESSAGE);
     }
 
@@ -74,10 +75,12 @@ public class GameUI : MonoBehaviour
 
     public void ShowMissText() {
         missText.SetActive(true);
+        PostProcessingManager.Instance.VignetteOn();
         Invoke("HideMissText", 2.5f);
     }
 
     public void HideMissText() {
         missText.SetActive(false);
+        PostProcessingManager.Instance.VignetteOff();
     }
 }
